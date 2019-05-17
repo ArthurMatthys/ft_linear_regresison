@@ -58,7 +58,7 @@ def sqrt(x, prec):
     return i
 
 
-def som(t):
+def sum(t):
     tot = 0
     for i in t:
         tot += i

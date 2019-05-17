@@ -1,60 +1,55 @@
 import matplotlib.pyplot as plt
 import pylib
+import sys
+import argparse
 
 
-def file_to_output(str, opt):
-    if not pylib.check_file(str):
-        print("This file does not exist")
-        exit()
-    else:
-        f = open(str, 'r')
-        top = f.readline()[:-1]
+def file_to_output(filename, opt):
+    with open(filename, 'r') as f:
+        top = f.readline().replace("\n", "")
         top = top.split(',')
         t = f.read()
         if t[-1] == '\n':
             t = t[:-1]
-        f.close()
-        t = t.split('\n')
-        tab =[]
-        for i in t:
-            i = i.split(',')
-            tab.append([float(i[0]), float(i[1])])
-        print (tab)
-        t1 = []
-        t2 = []
-        t1 += [i[0] for i in tab]
-        t2 += [i[1] for i in tab]
-        if opt:
-            plt.clf()
-            plt.plot(t1, t2, 'x')
-            plt.xlabel(top[0])
-            plt.ylabel(top[1])
-            plt.show()
-        return t1,t2
+    t = t.split('\n')
+    tab =[]
+    for i in t:
+        i = i.split(',')
+        tab.append([float(i[0]), float(i[1])])
+    t1 = []
+    t2 = []
+    t1 += [i[0] for i in tab]
+    t2 += [i[1] for i in tab]
+    if opt == "yes":
+        plt.clf()
+        plt.plot(t1, t2, 'x')
+        plt.xlabel(top[0])
+        plt.ylabel(top[1])
+        plt.show()
+    return t1,t2
 
 
-def handle_arg():
-    file = str(input())
-    print("Would you like to see the data on a graph ? (y) or (n)")
-    while 1:
-        i = str(input())
-        if i == "y":
-            viz = 1
-            break
-        elif i == "n":
-            viz = 0
-            break
-        else:
-            print("Please, enter yes (y) or no (n)")
+def run(filename, plot_data, plot_function):
 
-    t1,t2 = file_to_output(file, viz)
+    t1,t2 = file_to_output(filename, plot_data)
+
+    print(t1)
+    print(t2)
 
 
-def test():
-    t = [1, 2, 3, 4, 5]
-    for i in range(len(t)):
-        t[i] += 1
-    print (t)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", type=str, help="Path to the csv file to train")
+    parser.add_argument("--ShowData", "-d", type=str, help="Plot of data in the csv file (yes or no, default yes)", default="yes")
+    parser.add_argument("--ShowFunction", "-f", type=str, help="Plot the linear function found after the training (yes or no, default yes)", default="yes")
 
-test()
-#handle_arg()
+    args = parser.parse_args()
+    if not pylib.check_file(args.filename):
+        sys.exit("CSV file not found")
+    if args.ShowData != "no" and args.ShowData != 'yes':
+        sys.exit("Bad argument regarding the plot of data")
+    if args.ShowFunction != "no" and args.ShowFunction != 'yes':
+        sys.exit("Bad argument regarding the plot of the function")
+
+    run(args.filename, args.ShowData, args.ShowFunction)
+
